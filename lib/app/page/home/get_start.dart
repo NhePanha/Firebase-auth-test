@@ -1,4 +1,4 @@
-import 'package:firabase_auth/page/home/sig_in_screen.dart';
+import 'package:firabase_auth/app/page/home/sig_in_screen.dart';
 import 'package:flutter/material.dart';
 
 class GetStartedScreen extends StatelessWidget {

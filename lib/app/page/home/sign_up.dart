@@ -1,17 +1,16 @@
-import 'package:firabase_auth/page/home/homescreen.dart';
-import 'package:firabase_auth/page/home/sign_up.dart';
+import 'package:firabase_auth/app/page/home/sig_in_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class LoginScreen extends StatefulWidget {
+class SignUpScreen extends StatefulWidget {
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController usernamecontroller = TextEditingController();
   final TextEditingController passwordcontroller = TextEditingController();
-  bool isLoginLoading = false;
+  bool isSignUpLoading = false;
 
   @override
   void dispose() {
@@ -20,7 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _sign_in() async {
+  Future<void> _signUp() async {
     if (usernamecontroller.text.isEmpty || passwordcontroller.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all fields')),
@@ -29,25 +28,32 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     setState(() {
-      isLoginLoading = true;
+      isSignUpLoading = true;
     });
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      final userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: usernamecontroller.text.trim(),
         password: passwordcontroller.text.trim(),
       );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const Homescreen()),
-      );
+
+      if (userCredential.user != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Account created successfully!')),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+        );
+      }
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? 'Login failed')),
+        SnackBar(content: Text(e.message ?? 'Error creating account')),
       );
     } finally {
       setState(() {
-        isLoginLoading = false;
+        isSignUpLoading = false;
       });
     }
   }
@@ -69,11 +75,21 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const TextField(
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.person),
+                    hintText: 'Full Name',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(30.0)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
                 TextField(
                   controller: usernamecontroller,
                   decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.person),
-                    hintText: 'Username or Email',
+                    prefixIcon: Icon(Icons.email),
+                    hintText: 'Email',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(30.0)),
                     ),
@@ -92,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                isLoginLoading
+                isSignUpLoading
                     ? const CircularProgressIndicator()
                     : Container(
                         width: double.infinity,
@@ -104,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         child: ElevatedButton(
-                          onPressed: _sign_in,
+                          onPressed: _signUp,
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
@@ -113,33 +129,28 @@ class _LoginScreenState extends State<LoginScreen> {
                             shadowColor: Colors.transparent,
                           ),
                           child: const Text(
-                            'LOGIN',
+                            'SIGN UP',
                             style: TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
                 const SizedBox(height: 10),
-                const Row(children: [
-                  Padding(padding: EdgeInsets.symmetric(horizontal: 5)),
-                  Text('Forgot Password?')
-                ]),
-                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Don't have an account?"),
+                    const Text("Already have an account?"),
                     const SizedBox(width: 5),
                     InkWell(
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => SignUpScreen()),
+                              builder: (context) => LoginScreen()),
                         );
                       },
                       child: const Text(
-                        'Sign Up',
+                        'Login',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -165,14 +176,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       icon: const Image(
                         color: Color.fromARGB(255, 0, 64, 255),
                         image: AssetImage("asset/image/github.png"),
-                        width: 40,
+                        width: 42,
                       ),
                       onPressed: () {},
                     ),
                     IconButton(
                       icon: const Image(
                         image: AssetImage("asset/image/twiter.png"),
-                        width: 53,
+                        width: 55,
                       ),
                       onPressed: () {},
                     ),

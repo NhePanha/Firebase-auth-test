@@ -1,16 +1,17 @@
-import 'package:firabase_auth/page/home/sig_in_screen.dart';
+import 'package:firabase_auth/app/page/home/homescreen.dart';
+import 'package:firabase_auth/app/page/home/sign_up.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class SignUpScreen extends StatefulWidget {
+class LoginScreen extends StatefulWidget {
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
+class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController usernamecontroller = TextEditingController();
   final TextEditingController passwordcontroller = TextEditingController();
-  bool isSignUpLoading = false;
+  bool isLoginLoading = false;
 
   @override
   void dispose() {
@@ -19,7 +20,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-  Future<void> _signUp() async {
+  Future<void> _sign_in() async {
     if (usernamecontroller.text.isEmpty || passwordcontroller.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all fields')),
@@ -28,32 +29,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
 
     setState(() {
-      isSignUpLoading = true;
+      isLoginLoading = true;
     });
 
     try {
-      final userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: usernamecontroller.text.trim(),
         password: passwordcontroller.text.trim(),
       );
-
-      if (userCredential.user != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Account created successfully!')),
-        );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LoginScreen()),
-        );
-      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const Homescreen()),
+      );
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? 'Error creating account')),
+        SnackBar(content: Text(e.message ?? 'Login failed')),
       );
     } finally {
       setState(() {
-        isSignUpLoading = false;
+        isLoginLoading = false;
       });
     }
   }
@@ -75,21 +69,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const TextField(
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.person),
-                    hintText: 'Full Name',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(30.0)),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
                 TextField(
                   controller: usernamecontroller,
                   decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.email),
-                    hintText: 'Email',
+                    prefixIcon: Icon(Icons.person),
+                    hintText: 'Username or Email',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(30.0)),
                     ),
@@ -108,7 +92,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                isSignUpLoading
+                isLoginLoading
                     ? const CircularProgressIndicator()
                     : Container(
                         width: double.infinity,
@@ -120,7 +104,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                         ),
                         child: ElevatedButton(
-                          onPressed: _signUp,
+                          onPressed: _sign_in,
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
@@ -129,28 +113,33 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             shadowColor: Colors.transparent,
                           ),
                           child: const Text(
-                            'SIGN UP',
+                            'LOGIN',
                             style: TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
                 const SizedBox(height: 10),
+                const Row(children: [
+                  Padding(padding: EdgeInsets.symmetric(horizontal: 5)),
+                  Text('Forgot Password?')
+                ]),
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Already have an account?"),
+                    const Text("Don't have an account?"),
                     const SizedBox(width: 5),
                     InkWell(
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => LoginScreen()),
+                              builder: (context) => SignUpScreen()),
                         );
                       },
                       child: const Text(
-                        'Login',
+                        'Sign Up',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -176,14 +165,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       icon: const Image(
                         color: Color.fromARGB(255, 0, 64, 255),
                         image: AssetImage("asset/image/github.png"),
-                        width: 42,
+                        width: 40,
                       ),
                       onPressed: () {},
                     ),
                     IconButton(
                       icon: const Image(
                         image: AssetImage("asset/image/twiter.png"),
-                        width: 55,
+                        width: 53,
                       ),
                       onPressed: () {},
                     ),

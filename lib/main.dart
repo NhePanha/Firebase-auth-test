@@ -1,4 +1,4 @@
-import 'package:firabase_auth/page/home/get_start.dart';
+import 'package:firabase_auth/app/page/home/get_start.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
